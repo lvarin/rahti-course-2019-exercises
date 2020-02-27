@@ -1,0 +1,134 @@
+apiVersion: v1
+items:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: my-static-home
+    name: my-static-home
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: ""
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: my-static-home
+    name: my-static-home
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: my-static-home:latest
+    postCommit: {}
+    resources: {}
+    source:
+      git:
+        uri: https://github.com/lvarin/rahti-httpd-ex
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: my-openshift-nginx:latest
+          namespace: course-training-24022020
+      type: Docker
+    triggers:
+    - github:
+        secret: 7dEbuaD9qYREvItXZViL
+      type: GitHub
+    - generic:
+        secret: R0XLUm-9eBnhGLqlQXWs
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: my-static-home
+    name: my-static-home
+  spec:
+    replicas: 1
+    selector:
+      app: my-static-home
+      deploymentconfig: my-static-home
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: my-static-home
+          deploymentconfig: my-static-home
+      spec:
+        containers:
+        - image: my-static-home:latest
+          name: my-static-home
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 80
+            protocol: TCP
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - my-static-home
+        from:
+          kind: ImageStreamTag
+          name: my-static-home:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: my-static-home
+    name: my-static-home
+  spec:
+    ports:
+    - name: 80-tcp
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: my-static-home
+      deploymentconfig: my-static-home
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}

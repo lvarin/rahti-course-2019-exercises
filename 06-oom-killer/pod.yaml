@@ -1,0 +1,13 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: oom-killer
+spec:
+  containers:
+  - name: oom-killer
+    image: docker-registry.default.svc:5000/rahti-course-2019/oom-killer:1
+    resources:
+      limits:
+        memory: 50M
+      requests:
+        memory: 50M

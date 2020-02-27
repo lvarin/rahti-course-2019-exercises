@@ -1,0 +1,87 @@
+apiVersion: v1
+items:
+- apiVersion: image.openshift.io/v1
+  generation: 0
+  image:
+    dockerImageLayers: null
+    dockerImageMetadata:
+      ContainerConfig: {}
+      Created: null
+      Id: ""
+      apiVersion: "1.0"
+      kind: DockerImage
+    dockerImageMetadataVersion: "1.0"
+    metadata:
+      creationTimestamp: null
+  kind: ImageStreamTag
+  lookupPolicy:
+    local: false
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewBuild
+      openshift.io/imported-from: my-openshift-nginx:latest
+    creationTimestamp: null
+    labels:
+      build: my-bc
+    name: my-openshift-nginx:latest
+  tag:
+    annotations: null
+    from:
+      kind: DockerImage
+      name: my-openshift-nginx:latest
+    generation: null
+    importPolicy: {}
+    name: latest
+    referencePolicy:
+      type: ""
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewBuild
+    creationTimestamp: null
+    labels:
+      build: my-bc
+    name: my-bc
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: my-openshift-nginx:latest
+    postCommit: {}
+    resources: {}
+    source:
+      configMaps:
+      - configMap:
+          name: nginx-config
+        destinationDir: cfg/
+      dockerfile: |2+
+                FROM nginx:mainline-alpine
+                #RUN chmod g+rwX /var/cache/nginx /var/run /var/log/nginx
+                #RUN chgrp -R root /var/cache/nginx
+                COPY cfg/default.conf /etc/nginx/conf.d/default.conf
+                COPY cfg/nginx.conf /etc/nginx/nginx.conf
+                COPY cfg/index.html /usr/share/nginx/html/index.html
+                #RUN chmod -R g+rX /etc/nginx/
+                RUN chmod -R g+rX /usr/share/nginx/html
+                EXPOSE 8080
+      type: Dockerfile
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: nginx
+      type: Docker
+    triggers:
+    - github:
+        secret: MbEYWpvsxN5jCoTOX8NK
+      type: GitHub
+    - generic:
+        secret: 3F3CBvbYJ2JT6_xonz8I
+      type: Generic
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+kind: List
+metadata: {}
